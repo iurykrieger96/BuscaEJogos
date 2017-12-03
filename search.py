@@ -34,6 +34,7 @@ Pacman agents (in searchAgents.py).
 import util
 import sys
 import copy
+import operator
 
 class SearchProblem:
     """
@@ -160,9 +161,65 @@ def BPLRecursive(node, problem, limit, solution, visited, border):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-  
+    frontier = util.Stack() #open set
+    visited = util.Queue()  #closed set
+    state = problem.getStartState() #initial state
+    paths = {state: {'action': None, 'cameFrom': None}}
+    costs = [{ 'state': state, 'g': 0, 'f': heuristic(state, problem)}]
+    frontier.push(state)
+
+    def getCost(state):
+        for cost in costs:
+            if cost['state'] == state:
+                return cost
+        return None
+
+    def setCost(state, new_cost):
+        state_cost = getCost(state)
+        if not state_cost:
+            # new path
+            state_cost = {
+                'state': state,
+                'g': new_cost,
+                'f': new_cost + heuristic(state, problem)
+            }
+            costs.append(state_cost)
+        elif new_cost <= state_cost['g']:
+            # Best path until now
+            state_cost['g'] = new_cost
+            state_cost['f'] = new_cost + heuristic(state, problem)
+
+    def reconstruct(paths, current):
+        current = paths[current]
+        solution = [current['action']]
+        while current['cameFrom'] != None:
+            current = paths[current['cameFrom']]
+            if current['action']:
+                solution.append(current['action'])
+        return solution[::-1]
+
+    while not frontier.isEmpty():
+        current = sorted([cost for cost in costs if cost['state'] in frontier.list], key=lambda cost: cost['f'])[0]['state']
+        if problem.goalTest(current):
+            return reconstruct(paths, current)
+
+        frontier.list = filter(lambda state: state != current, frontier.list)
+        visited.push(current)
+
+        for action in problem.getActions(current):
+            next_state = problem.getResult(current, action)
+
+            if next_state not in visited.list:
+
+                if next_state not in frontier.list:
+                    frontier.push(next_state)
+
+                # distance from start to current state
+                current_cost = getCost(current)
+                new_cost = current_cost['g'] + problem.getCost(current, action)
+                paths[next_state] = {'action': action, 'cameFrom': current}
+                setCost(next_state, new_cost)
+                
 
 # Abbreviations
 bfs = breadthFirstSearch

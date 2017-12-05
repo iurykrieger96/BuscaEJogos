@@ -184,7 +184,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 'f': new_cost + heuristic(state, problem)
             }
             costs.append(state_cost)
-        elif new_cost <= state_cost['g']:
+        elif new_cost < state_cost['g']:
             # Best path until now
             state_cost['g'] = new_cost
             state_cost['f'] = new_cost + heuristic(state, problem)
@@ -207,18 +207,19 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         visited.push(current)
 
         for action in problem.getActions(current):
-            next_state = problem.getResult(current, action)
+            neighbor = problem.getResult(current, action)
 
-            if next_state not in visited.list:
+            if neighbor not in visited.list:
 
-                if next_state not in frontier.list:
-                    frontier.push(next_state)
+                if neighbor not in frontier.list:
+                    frontier.push(neighbor)
 
                 # distance from start to current state
                 current_cost = getCost(current)
                 new_cost = current_cost['g'] + problem.getCost(current, action)
-                paths[next_state] = {'action': action, 'cameFrom': current}
-                setCost(next_state, new_cost)
+                paths[neighbor] = {'action': action, 'cameFrom': current}
+                setCost(neighbor, new_cost)
+    return False
                 
 
 # Abbreviations

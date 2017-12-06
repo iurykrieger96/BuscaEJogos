@@ -158,9 +158,52 @@ def BPLRecursive(node, problem, limit, solution, visited, border):
         else:
             return None
 
+"""
+def aStarSearch(problem, heuristic=nullHeuristic):
+    start = problem.getStartState()
+    frontier = util.PriorityQueue()
+    frontier.push(start, 0)
+    visited = util.Queue()
+    came_from = {}
+    cost_so_far = {}
+    came_from[start] = None
+    cost_so_far[start] = 0
+    
+    while not frontier.isEmpty():
+        current = frontier.pop()
+        visited.push(current)
+
+        if problem.goalTest(current):
+            break
+
+        for action in problem.getActions(current):
+            next = problem.getResult(current, action)
+
+            if next not in visited.list:  
+
+                new_cost = cost_so_far[current] + problem.getCost(current, action)
+                priority = new_cost + heuristic(next, problem)
+                frontier.push(next, priority)
+                
+                if next not in cost_so_far or new_cost < cost_so_far[next]:
+                    cost_so_far[next] = new_cost
+                    came_from[next] = current
+                    
+    
+    current = next
+    solution = []
+    while came_from[current] is not None:
+        actions = problem.getActions(came_from[current])
+        for action in actions:
+            state = problem.getResult(came_from[current], action)
+            if state == current:
+                solution.append(action)
+        current = came_from[current]
+
+    return solution[::-1]
+"""
 
 def aStarSearch(problem, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
     frontier = util.Stack() #open set
     visited = util.Queue()  #closed set
     state = problem.getStartState() #initial state
@@ -176,6 +219,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
     def setCost(state, new_cost):
         state_cost = getCost(state)
+        new_f_cost = new_cost + heuristic(state, problem)
         if not state_cost:
             # new path
             state_cost = {
@@ -184,10 +228,10 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 'f': new_cost + heuristic(state, problem)
             }
             costs.append(state_cost)
-        elif new_cost < state_cost['g']:
+        elif new_f_cost < state_cost['f'] or (new_f_cost == state_cost['f'] and new_cost < state_cost['g']):
             # Best path until now
             state_cost['g'] = new_cost
-            state_cost['f'] = new_cost + heuristic(state, problem)
+            state_cost['f'] = new_f_cost
 
     def reconstruct(paths, current):
         current = paths[current]
@@ -220,7 +264,6 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 paths[neighbor] = {'action': action, 'cameFrom': current}
                 setCost(neighbor, new_cost)
     return False
-                
 
 # Abbreviations
 bfs = breadthFirstSearch

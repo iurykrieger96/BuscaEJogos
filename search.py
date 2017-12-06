@@ -178,7 +178,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
             while came_from[current] is not None:
                 solution.append(came_from[current]['action'])
                 current = came_from[current]['state']
-            break;
+            return solution[::-1]
 
         for action in problem.getActions(current):
             neighbor = problem.getResult(current, action)
@@ -187,77 +187,12 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
                 new_cost = cost_so_far[current] + problem.getCost(current, action)
                 priority = new_cost + heuristic(neighbor, problem)
-                frontier.push(neighbor, priority) # Update priority after find new path!!!
                 
                 if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
                     cost_so_far[neighbor] = new_cost
                     came_from[neighbor] = {'state': current, 'action': action}
+                    frontier.push(neighbor, priority)
 
-    return solution[::-1]
-
-
-"""def aStarSearch(problem, heuristic=nullHeuristic):
-    frontier = util.PriorityQueue() #open set
-    visited = util.Queue()  #closed set
-    state = problem.getStartState() #initial state
-    paths = {state: {'action': None, 'cameFrom': None}}
-    costs = [{ 'state': state, 'g': 0, 'f': heuristic(state, problem)}]
-    frontier.push(state, 0)
-
-    def getCost(state):
-        for cost in costs:
-            if cost['state'] == state:
-                return cost
-        return None
-
-    def setCost(state, new_cost):
-        state_cost = getCost(state)
-        new_f_cost = new_cost + heuristic(state, problem)
-        if not state_cost:
-            # new path
-            state_cost = {
-                'state': state,
-                'g': new_cost,
-                'f': new_cost + heuristic(state, problem)
-            }
-            costs.append(state_cost)
-        elif new_f_cost < state_cost['f'] or (new_f_cost == state_cost['f'] and new_cost < state_cost['g']):
-            # Best path until now
-            state_cost['g'] = new_cost
-            state_cost['f'] = new_f_cost
-
-    def reconstruct(paths, current):
-        current = paths[current]
-        solution = [current['action']]
-        while current['cameFrom'] != None:
-            current = paths[current['cameFrom']]
-            if current['action']:
-                solution.append(current['action'])
-        return solution[::-1]
-
-    while not frontier.isEmpty():
-        current = frontier.pop()
-        if problem.goalTest(current):
-            return reconstruct(paths, current)
-
-        visited.push(current)
-
-        for action in problem.getActions(current):
-            neighbor = problem.getResult(current, action)
-
-            if neighbor not in visited.list:
-
-                # distance from start to current state
-                current_cost = getCost(current)
-                new_cost = current_cost['g'] + problem.getCost(current, action)
-
-                if neighbor not in frontier.list:
-                    frontier.push(neighbor, new_cost + heuristic(neighbor, problem))
-
-                paths[neighbor] = {'action': action, 'cameFrom': current}
-                setCost(neighbor, new_cost)
-    return False
-"""
 # Abbreviations
 bfs = breadthFirstSearch
 astar = aStarSearch

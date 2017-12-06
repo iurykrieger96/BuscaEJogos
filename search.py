@@ -158,58 +158,55 @@ def BPLRecursive(node, problem, limit, solution, visited, border):
         else:
             return None
 
-"""
+
 def aStarSearch(problem, heuristic=nullHeuristic):
     start = problem.getStartState()
     frontier = util.PriorityQueue()
     frontier.push(start, 0)
+    tmp = []
     visited = util.Queue()
     came_from = {}
     cost_so_far = {}
     came_from[start] = None
     cost_so_far[start] = 0
+    solution = []
     
     while not frontier.isEmpty():
         current = frontier.pop()
         visited.push(current)
-
+        
         if problem.goalTest(current):
-            break
+            while came_from[current] is not None:
+                solution.append(came_from[current]['action'])
+                current = came_from[current]['state']
+            break;
 
         for action in problem.getActions(current):
-            next = problem.getResult(current, action)
+            neighbor = problem.getResult(current, action)
 
-            if next not in visited.list:  
+            if neighbor not in visited.list:  
 
                 new_cost = cost_so_far[current] + problem.getCost(current, action)
-                priority = new_cost + heuristic(next, problem)
-                frontier.push(next, priority)
+                priority = new_cost + heuristic(neighbor, problem)
                 
-                if next not in cost_so_far or new_cost < cost_so_far[next]:
-                    cost_so_far[next] = new_cost
-                    came_from[next] = current
-                    
-    
-    current = next
-    solution = []
-    while came_from[current] is not None:
-        actions = problem.getActions(came_from[current])
-        for action in actions:
-            state = problem.getResult(came_from[current], action)
-            if state == current:
-                solution.append(action)
-        current = came_from[current]
+                if neighbor not in tmp:
+                    frontier.push(neighbor, priority)
+                    tmp.append(neighbor)
+
+                if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
+                    cost_so_far[neighbor] = new_cost
+                    came_from[neighbor] = {'state': current, 'action': action}
 
     return solution[::-1]
-"""
 
-def aStarSearch(problem, heuristic=nullHeuristic):
-    frontier = util.Stack() #open set
+
+"""def aStarSearch(problem, heuristic=nullHeuristic):
+    frontier = util.PriorityQueue() #open set
     visited = util.Queue()  #closed set
     state = problem.getStartState() #initial state
     paths = {state: {'action': None, 'cameFrom': None}}
     costs = [{ 'state': state, 'g': 0, 'f': heuristic(state, problem)}]
-    frontier.push(state)
+    frontier.push(state, 0)
 
     def getCost(state):
         for cost in costs:
@@ -243,11 +240,10 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         return solution[::-1]
 
     while not frontier.isEmpty():
-        current = sorted([cost for cost in costs if cost['state'] in frontier.list], key=lambda cost: cost['f'])[0]['state']
+        current = frontier.pop()
         if problem.goalTest(current):
             return reconstruct(paths, current)
 
-        frontier.list = filter(lambda state: state != current, frontier.list)
         visited.push(current)
 
         for action in problem.getActions(current):
@@ -255,16 +251,17 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
             if neighbor not in visited.list:
 
-                if neighbor not in frontier.list:
-                    frontier.push(neighbor)
-
                 # distance from start to current state
                 current_cost = getCost(current)
                 new_cost = current_cost['g'] + problem.getCost(current, action)
+
+                if neighbor not in frontier.list:
+                    frontier.push(neighbor, new_cost + heuristic(neighbor, problem))
+
                 paths[neighbor] = {'action': action, 'cameFrom': current}
                 setCost(neighbor, new_cost)
     return False
-
+"""
 # Abbreviations
 bfs = breadthFirstSearch
 astar = aStarSearch

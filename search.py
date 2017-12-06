@@ -163,7 +163,6 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     start = problem.getStartState()
     frontier = util.PriorityQueue()
     frontier.push(start, 0)
-    tmp = []
     visited = util.Queue()
     came_from = {}
     cost_so_far = {}
@@ -188,11 +187,8 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
                 new_cost = cost_so_far[current] + problem.getCost(current, action)
                 priority = new_cost + heuristic(neighbor, problem)
+                frontier.push(neighbor, priority) # Update priority after find new path!!!
                 
-                if neighbor not in tmp:
-                    frontier.push(neighbor, priority)
-                    tmp.append(neighbor)
-
                 if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
                     cost_so_far[neighbor] = new_cost
                     came_from[neighbor] = {'state': current, 'action': action}

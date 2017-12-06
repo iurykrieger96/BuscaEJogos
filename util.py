@@ -167,7 +167,6 @@ class PriorityQueue:
     """
     def  __init__(self):
         self.heap = []
-        self.list = []
         self.count = 0
 
     def push(self, item, priority):
@@ -175,10 +174,8 @@ class PriorityQueue:
         # FIXED: restored to stable behaviour
         entry = (priority, self.count, item)
         # entry = (priority, item)
-        if item not in self.list:
-            heapq.heappush(self.heap, entry)
-            self.list.append(item)
-            self.count += 1
+        heapq.heappush(self.heap, entry)
+        self.count += 1
 
     def pop(self):
         (_, _, item) = heapq.heappop(self.heap)
